@@ -30,6 +30,15 @@ for key in tweets:
         tweet["sentiment"] = sid.polarity_scores(tweet["content"])
         tweet["retweets"] = int(tweet["retweets"])
         tweet["favorites"] = int(tweet["favorites"])
+        tweet["tokens"] = nltk.word_tokenize(tweet["content"])
+        
+     
+        if(tweet["sentiment"]["compound"] > 0):
+            tweet["sentiment"]["sentiment"] = "Positive"
+        else:
+            tweet["sentiment"]["sentiment"] = "Negative"
+        
+        
         
 def gendata(tweets):
     for tweet in tweets["tweets"]:
