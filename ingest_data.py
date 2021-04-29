@@ -3,10 +3,44 @@ from elasticsearch import Elasticsearch, helpers
 from datetime import datetime
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk.corpus import twitter_samples
+from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import stopwords
+from nltk.tag import pos_tag
+from nltk.stem.wordnet import WordNetLemmatizer
+nltk.download('wordnet')
+stop_words = stopwords.words('english')
 
 nltk.download('vader_lexicon')
 sid = SentimentIntensityAnalyzer()
-  
+
+...
+
+import re, string
+
+def remove_noise(tweet_tokens, stop_words = ()):
+
+    cleaned_tokens = []
+
+    for token, tag in pos_tag(tweet_tokens):
+        token = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+#]|[!*\(\),]|'\
+                       '(?:%[0-9a-fA-F][0-9a-fA-F]))+','', token)
+        token = re.sub("(@[A-Za-z0-9_]+)","", token)
+
+        if tag.startswith("NN"):
+            pos = 'n'
+        elif tag.startswith('VB'):
+            pos = 'v'
+        else:
+            pos = 'a'
+
+        lemmatizer = WordNetLemmatizer()
+        token = lemmatizer.lemmatize(token, pos)
+
+        if len(token) > 0 and token not in string.punctuation and token.lower() not in stop_words:
+            cleaned_tokens.append(token.lower())
+    return cleaned_tokens
+
 #load api key
 f = open("/Users/tin/Documents/secrets/es_creds.json")
 
@@ -18,7 +52,7 @@ es = Elasticsearch(
     api_key=(es_creds["auth"]["apiKey"]["id"], es_creds["auth"]["apiKey"]["api_key"]),
 )
 
-tweet_file_obj = open("trumptweets.json")
+tweet_file_obj = open("trumptweets_clean.json")
 
 tweets = json.load(tweet_file_obj)
 
@@ -26,17 +60,23 @@ for key in tweets:
     print("There are {} tweets to ingest".format(len(tweets[key])))
     
     for tweet in tweets[key]:
+        
+        tweet.pop("", None)
         tweet['date'] = datetime.strptime(tweet['date'], '%Y-%m-%d %H:%M:%S')
-        tweet["sentiment"] = sid.polarity_scores(tweet["content"])
+        tweet["sentiment"] = sid.polarity_scores(tweet["clean content"])
         tweet["retweets"] = int(tweet["retweets"])
         tweet["favorites"] = int(tweet["favorites"])
-        tweet["tokens"] = nltk.word_tokenize(tweet["content"])
+        space_tokenizer = RegexpTokenizer("\s+", gaps=True)
+        tweet_tokens = []
+        tweet_tokens.append(space_tokenizer.tokenize(tweet["clean content"]))
+        tweet["tokens"] = tweet_tokens[0]
+        tweet["tokens_no_noise"] = remove_noise(tweet["tokens"], stop_words)
         
-     
         if(tweet["sentiment"]["compound"] > 0):
             tweet["sentiment"]["sentiment"] = "Positive"
         else:
             tweet["sentiment"]["sentiment"] = "Negative"
+        
         
         
         
