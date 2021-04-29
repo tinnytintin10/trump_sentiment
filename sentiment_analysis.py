@@ -1,16 +1,8 @@
-import json 
-import nltk
-nltk.download(["names","stopwords","state_union","twitter_samples","movie_reviews","averaged_perceptron_tagger","vader_lexicon","punkt", ])
-tweet_file_obj = open("trumptweets.json")
+from nltk.corpus import twitter_samples
 
-tweets = json.load(tweet_file_obj)
+positive_tweets = twitter_samples.strings('positive_tweets.json')
+# negative_tweets = twitter_samples.strings('negative_tweets.json')
+# text = twitter_samples.strings('tweets.20150430-223406.json')
+# tweet_tokens = twitter_samples.tokenized('positive_tweets.json')[0]
 
-
-
-
-
-words = "tinsae is at it again"
-
-a = nltk.word_tokenize(words)
-
-print(a)
+print(len(positive_tweets))
