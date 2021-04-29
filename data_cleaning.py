@@ -1,3 +1,4 @@
+#this script will normalize the data
 import re, os
 import pandas as pd
 import numpy as np
