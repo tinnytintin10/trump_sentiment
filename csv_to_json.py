@@ -20,8 +20,8 @@ def make_json(csvFilePath, jsonFilePath):
         jsonf.write(json.dumps(data, indent=4))
          
 
-csvFilePath = r'tweets_clean.csv'
-jsonFilePath = r'trumptweets_clean.json'
+csvFilePath = r'data/tweets_clean.csv'
+jsonFilePath = r'data/trumptweets_clean.json'
  
 
 make_json(csvFilePath, jsonFilePath)

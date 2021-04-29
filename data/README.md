@@ -1,0 +1,1 @@
+There was some cleaning of the `trumptweets.csv` done so that sentiment analysis could be performed properly. 
